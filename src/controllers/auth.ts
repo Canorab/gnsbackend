@@ -1,5 +1,6 @@
 import { Request, RequestHandler, Response } from "express";
 
+import { LoginType } from "@/config/schema.zod";
 import UserModel from "@/models/user";
 import env from "@/env";
 import jwt from "jsonwebtoken";
@@ -13,7 +14,7 @@ import jwt from "jsonwebtoken";
  */
 
 export const login: RequestHandler = async (req: Request, res: Response) => {
-  const { username, password } = req.body;
+  const { username, password }: LoginType["body"] = req.body;
 
   const foundUser = await UserModel.findOne({ username }).exec();
   if (!foundUser) {

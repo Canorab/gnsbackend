@@ -31,7 +31,7 @@ const userSchema = new Schema<UserDocument, {}, Methods>(
     },
     password: {
       type: String,
-      required: true,
+      // required: true,
       trim: true,
     },
     firstName: {

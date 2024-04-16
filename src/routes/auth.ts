@@ -1,7 +1,7 @@
 import { login, logout, refresh } from "@/controllers/auth";
 
 import { Router } from "express";
-import { userLoginSchema } from "@/config/schema";
+import { userLoginSchema } from "@/config/schema.zod";
 import { validate } from "@/middlewares/zod.middleware";
 
 const authRouter = Router();

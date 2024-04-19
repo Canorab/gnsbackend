@@ -14,7 +14,8 @@ type DomainDocument = Document & domainCreateType["body"];
 const domainSchema = new Schema<DomainDocument, {}>(
   {
     userId: {
-      type: String,
+      // type: String,
+      type: Schema.Types.ObjectId,
       required: true,
       trim: true,
     },
@@ -37,6 +38,15 @@ const domainSchema = new Schema<DomainDocument, {}>(
       type: String,
       trim: true,
       required: true,
+    },
+    wallet: {
+      type: String,
+      trim: true,
+      required: true,
+    },
+    data: {
+      type: Object,
+      // required: true,
     },
   },
   {

@@ -1,21 +1,24 @@
 import { Document, Model, Schema, model } from "mongoose";
 import { compare, genSalt, hash } from "bcrypt";
 
-type UserDocument = Document & {
-  username: string;
-  password: string;
-  firstName: string;
-  lastName: string;
-  email: string;
-  domains: number;
-  wallet: string;
-  referrerId: string;
-  referrerUsername: string;
-  //   role: "user" | "admin";
-  roles: string[];
-  active: boolean;
-  terms: boolean;
-};
+import { UserType } from "@/config/schema.zod";
+
+// type UserDocument = Document & {
+//   username: string;
+//   password: string;
+//   firstName: string;
+//   lastName: string;
+//   email: string;
+//   domains: number;
+//   wallet: string;
+//   referrerId: string;
+//   referrerUsername: string;
+//   //   role: "user" | "admin";
+//   roles: string[];
+//   active: boolean;
+//   terms: boolean;
+// };
+type UserDocument = Document & UserType["body"];
 
 type Methods = {
   comparePassword: (password: string) => Promise<boolean>;
@@ -50,7 +53,7 @@ const userSchema = new Schema<UserDocument, {}, Methods>(
       trim: true,
       unique: true,
     },
-    domains: {
+    domainsCount: {
       type: Number,
       required: true,
       default: 0,

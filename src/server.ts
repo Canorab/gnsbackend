@@ -8,6 +8,7 @@ import path from "path";
 // import { zodMiddleware } from "./middlewares/zod.middleware";
 import userRouter from "./routes/user";
 import { getUser } from "./controllers/user";
+import domainsRouter from "./routes/domain";
 
 const app = express();
 const PORT = env.PORT || 5001;
@@ -26,6 +27,7 @@ app.get("/", (req, res) => {
 //  Endpoints & Routes
 // app.use("/users", userRouter);
 app.use("/api/users", userRouter);
+app.use("/api/domains", domainsRouter);
 // app.get("/users/:id", getUser);
 
 app.all("*", (req, res) => {

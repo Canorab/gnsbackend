@@ -38,7 +38,7 @@ export const addUser: RequestHandler = async (req: Request, res: Response) => {
     lastName,
     password,
     email,
-    domains,
+    domainsCount,
     wallet,
     referrerUsername,
     terms,
@@ -82,7 +82,7 @@ export const addUser: RequestHandler = async (req: Request, res: Response) => {
     username,
     password,
     email,
-    domains,
+    domainsCount,
     wallet,
     referrerUsername,
     terms,
@@ -97,8 +97,13 @@ export const updateUser: RequestHandler = async (
 ) => {
   //1. Retrieve id, Username (user's Mongodb Doc ID) from  the request body, terminate if it doesn't exist
   // const { id, username, domains, password, active }: UserUpdateType = req.body;
-  const { id, username, domains, password, active }: UserUpdateType["body"] =
-    req.body;
+  const {
+    id,
+    username,
+    domainsCount,
+    password,
+    active,
+  }: UserUpdateType["body"] = req.body;
 
   //2. Fetch a user from Mongodb using the provided Id, terminate if no record was found
   const user = await UserModel.findById(id).exec();
@@ -121,7 +126,7 @@ export const updateUser: RequestHandler = async (
   // values from the provided data in res.body to the various fields of the first found user
   // or generated data in the case of password.
 
-  if (domains) user.domains = domains; //parseInt(domains);
+  if (domainsCount) user.domainsCount = domainsCount; //parseInt(domains);
   if (active) user.active = active;
   if (password) user.password = password;
 

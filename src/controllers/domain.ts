@@ -3,59 +3,43 @@ import { NextFunction, Request, RequestHandler, Response } from "express";
 import DomainModel from "@/models/domain";
 import { GetUserDomainsType } from "@/config/schema.zod";
 import UserModel from "@/models/user";
+import axios from "axios";
+import env from "@/env";
 
-export const addNewDomain: RequestHandler = async (
+/* This controller should fetch all documents from the domains collection */
+export const getAllUsersDomains: RequestHandler = async (
   req: Request,
   res: Response
 ) => {
-  res.json({ message: "Contact reached! Adding a New domain soon!" });
+  const domains = await DomainModel.find().exec();
+  if (!domains) return res.status(400).json({ message: "No Domains Found!" });
+
+  res.json(domains);
+
+  /**
+   ** Proceed to fetch all docs from the domains collection. They should be up-to-date now
+   * 8. Now proceed to fetch all domains from the mongodb domains collection using .find() - outside the map function
+   * 9. Send the response to the frontend.
+   */
+  //   res.json({ message: "Contact reached! Receiving All domains soon!" });
 };
 
-export const addManyDomains: RequestHandler = async (
-  req: Request,
-  res: Response
-) => {
-  // Expects a req.body.domains[]
-  // maps through and creates a doc with each returned object in the domains collection using the DomainModel.
-  //Before then, it should filter out existing domains (.e domain which has already been saved to the user's Record in MongoDb)
-  const { greet } = res.locals;
-  const { domains } = res.locals;
-  const data = JSON.stringify(domains);
-  res.json({
-    message: `Received data from previous middlewares: Contact reached! Adding Many domains soon!`,
-    body: domains,
-  });
-};
-
-export const getAllDomains: RequestHandler = async (
-  req: Request,
-  res: Response
-) => {
-  res.json({ message: "Contact reached! Receiving All domains soon!" });
-};
-
-/**
- * @description This controller fetches a user's nfts from the mongodb database
- * @param req
- * @param res
- * @returns
- */
-// export const getUserDomains: RequestHandler = async (
+/* This controller should fetch all nft domains from the blockchain using the opensea api and render in cards */
+// export const getAllContractDomains: RequestHandler = async (
 //   req: Request,
 //   res: Response
 // ) => {
-//   const { userId, wallet }: GetUserDomainsType["body"] = req.body;
-//   //Step 1: Check if the user is active using the provided id field, else terminate
-//   const user = await UserModel.findById(userId).lean().exec();
+//   axios
+//     .request(options)
+//     .then(function (response) {
+//       //   console.log(response.data);
+//       res.json(response.data);
+//     })
+//     .catch(function (error) {
+//       console.error(error);
+//     });
 
-//   if (!user) return res.status(400).json({ message: " User not found !" });
-
-//   if (user.active === false)
-//     return res.status(409).json({ message: "Banned User ! Contact Admin." });
-
-//   // From this point on, you can fetch nfts from Mongodb
-//   const domains = await DomainModel.find({ userId });
-//   res.json({ body: domains });
+//   //   res.json({ message: "Contact reached! Receiving All domains soon!" });
 // };
 
 /**
@@ -68,6 +52,10 @@ export const getUserDomains: RequestHandler = async (
   req: Request,
   res: Response
 ) => {
+  // This controller should not directly fetch the user's nfts from mongodb, instead it should receive the nft[] from the
+  // fetchDomains middleware. Alternatively, implement a pre hook that'll fetch a user's domains from the blockchain using
+  //their wallet and save to mongodb for the Domain model.
+
   const { username } = req.params;
   //Step 1: Check if the user is active using the provided id field, else terminate
   //   const user = await UserModel.findById({ username }).lean().exec();
@@ -79,9 +67,103 @@ export const getUserDomains: RequestHandler = async (
     return res.status(409).json({ message: "Banned User. Contact Admin !" });
 
   // From this point on, you can fetch nfts from Mongodb
-  const domains = await DomainModel.find({ username });
+  const domains = await DomainModel.find({ username }).exec();
   if (!domains)
     return res.status(400).json({ message: " User doesn't have any domains!" });
 
-  res.json({ body: domains });
+  res.json(domains);
 };
+
+// Aggregation Pipeline for USERS Stats
+
+export const getUserDomainsCount: RequestHandler = async (
+  req: Request,
+  res: Response
+) => {
+  const { username } = req.params;
+  const user = await UserModel.findOne({ username })
+    .select("-password")
+    .lean()
+    .exec();
+  if (!user) return res.status(403).json({ message: "User not found !" });
+  const domainsCount = await DomainModel.aggregate([
+    {
+      $match: {
+        username: `${username}`,
+      },
+    },
+  ]).count("total");
+
+  res.json(domainsCount);
+};
+
+// Aggregation Pipeline for Admin Stats
+
+//1. getAllDomainsCount - This controller should respond with the numbers of docs from the Domains collection.
+
+export const getAllDomainsCount: RequestHandler = async (
+  req: Request,
+  res: Response
+) => {
+  const allDomainsCount = await DomainModel.aggregate().count("total");
+
+  res.json(allDomainsCount);
+};
+
+// 2. getTodayDomainsCount - This controller should respond with the numbers of docs from the Domains collection whose createdAt field
+// has a value of 24 hours or less. I.e all domains that were bought today.
+export const getTodayDomainsCount: RequestHandler = async (
+  req: Request,
+  res: Response
+) => {
+  const domainsCount = await DomainModel.aggregate([
+    {
+      $match: {
+        $expr:
+          // { $lt: [{ $dateDiff: { startDate: "$_id", endDate: "$$NOW", unit: "hour" } }, 24 ]}
+          {
+            $lt: [
+              {
+                $dateDiff: {
+                  startDate: "$_id",
+                  endDate: "$$NOW",
+                  unit: "hour",
+                },
+              },
+              24,
+            ],
+          },
+      },
+    },
+    // {
+    //   $addFields:{
+    //     createdDate: {$toDate: "$createdAt"}
+    //   }
+    // },
+    // {
+    //   $project: {
+    //     createdDate: {
+    //       $dateFromString: {
+    //         dateString: "$createdAt",
+    //         onError: "$createdAt",
+    //       },
+    //     },
+    //   },
+    // },
+    // {
+    //   $match: {
+    //     createdAt: new Date("2024-04-21T22:06:24.926Z"), // TODO: Replace with today's date object
+    //     // createdAt: new Date('<YYYY-mm-ddTHH:MM:ssZ>'),
+    //     // username: "zstain",
+    //   },
+    // },
+  ]).count("total");
+
+  res.json(domainsCount);
+};
+
+// Default format:  "%Y-%m-%dT%H:%M:%S.%LZ"
+// use this format: "%Y-%m-%dZ"
+//or
+// use this format: "%Y-%m-%d"
+//  format: "%d-%m-%Y"

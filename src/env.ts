@@ -9,6 +9,12 @@ const env = cleanEnv(process.env, {
   REFRESH_TOKEN_SECRET: str(),
   DATABASE_URI: str(),
   PORT: str(),
+  CONTRACT: str(),
+  INFURA_KEY: str(),
+  OPENSEA_API_KEY: str(),
+  ETHEREUM_NETWORK: str(),
+  POLYGON_NETWORK: str(),
+  MORALIS_API_KEY: str(),
 });
 
 export default env;

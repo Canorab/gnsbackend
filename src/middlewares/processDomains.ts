@@ -1,7 +1,5 @@
 import { NextFunction, Request, RequestHandler, Response } from "express";
 
-import { filterDomains } from "@/helpers/domainHelpers";
-
 /**
  * @description This function retrieves the array of domains passed on by the fetchDomains middleware from res.body and then; filter out the ones already in the user's record and pushes the newly added domains to the addDomain controller
  * @param req

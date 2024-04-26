@@ -1,11 +1,15 @@
 import { login, logout, refresh } from "@/controllers/auth";
+import { userLoginSchema, userRegSchema } from "@/config/schema.zod";
 
 import { Router } from "express";
-import { userLoginSchema } from "@/config/schema.zod";
+import { addUser } from "@/controllers/user";
 import { validate } from "@/middlewares/zod.middleware";
 
 const authRouter = Router();
 
 authRouter.route("/").post(validate(userLoginSchema), login);
-authRouter.route("/refresh").post(refresh);
+authRouter.route("/refresh").get(refresh);
+authRouter.route("/signup").post(validate(userRegSchema), addUser);
 authRouter.route("/logout").post(logout);
+
+export default authRouter;

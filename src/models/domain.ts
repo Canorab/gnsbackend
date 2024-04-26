@@ -34,10 +34,14 @@ const domainSchema = new Schema<DomainDocument, {}>(
       trim: true,
       required: true,
     },
-    value: {
+    name: {
       type: String,
       trim: true,
       required: true,
+    },
+    image_url: {
+      type: String,
+      trim: true,
     },
     wallet: {
       type: String,
@@ -53,6 +57,8 @@ const domainSchema = new Schema<DomainDocument, {}>(
     timestamps: true,
   }
 );
+
+// domainSchema.pre("find", (next) => {});
 
 const DomainModel = model("Domain", domainSchema);
 export default DomainModel as Model<DomainDocument, {}>;

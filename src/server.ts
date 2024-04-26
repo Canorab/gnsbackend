@@ -9,13 +9,20 @@ import path from "path";
 import userRouter from "./routes/user";
 import { getUser } from "./controllers/user";
 import domainsRouter from "./routes/domain";
+import authRouter from "./routes/auth";
+import cors from "cors";
+import corsOptions from "./config/corsOptions";
+import cookieParser from "cookie-parser";
 
 const app = express();
 const PORT = env.PORT || 5001;
 console.log(env.NODE_ENV);
 
+// CORS
+app.use(cors(corsOptions));
 // Server Config
 app.use(express.json());
+app.use(cookieParser());
 
 app.use(express.static("public"));
 
@@ -25,7 +32,7 @@ app.get("/", (req, res) => {
 });
 
 //  Endpoints & Routes
-// app.use("/users", userRouter);
+app.use("/api/auth", authRouter);
 app.use("/api/users", userRouter);
 app.use("/api/domains", domainsRouter);
 // app.get("/users/:id", getUser);

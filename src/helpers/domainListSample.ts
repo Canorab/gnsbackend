@@ -1,6 +1,6 @@
-import { domainsListSchemaType } from "@/config/schema.zod";
+import { nftListSchemaType } from "@/config/schema.zod";
 
-export const domains: domainsListSchemaType = {
+export const domains: nftListSchemaType = {
   nfts: [
     {
       identifier: "1551",

@@ -1,9 +1,10 @@
+import * as jwt from "jsonwebtoken";
+
 import { Request, RequestHandler, Response } from "express";
 
 import { LoginType } from "@/config/schema.zod";
 import UserModel from "@/models/user";
 import env from "@/env";
-import jwt from "jsonwebtoken";
 
 /**
  * @description This function processes login requests
@@ -40,14 +41,15 @@ export const login: RequestHandler = async (req: Request, res: Response) => {
       },
     },
     env.ACCESS_TOKEN_SECRET,
-    { expiresIn: "60s" }
+    { expiresIn: "3m" }
   );
 
   const refreshToken = jwt.sign(
     { username: foundUser.username },
     env.REFRESH_TOKEN_SECRET,
     {
-      expiresIn: "7d",
+      // expiresIn: "7d",
+      expiresIn: "3m",
     }
   );
 
@@ -78,29 +80,33 @@ export const refresh: RequestHandler = (req: Request, res: Response) => {
 
   const refreshToken = cookies.jwt;
 
-  jwt.verify(refreshToken, env.REFRESH_TOKEN_SECRET, async (err, decoded) => {
-    if (err) return res.status(403).json({ message: "Forbidden" });
+  jwt.verify(
+    refreshToken,
+    env.REFRESH_TOKEN_SECRET,
+    async (err: any, decoded: any) => {
+      if (err) return res.status(403).json({ message: "Forbidden" });
 
-    const foundUser = await UserModel.findOne({
-      username: decoded?.username,
-    }).exec();
+      const foundUser = await UserModel.findOne({
+        username: decoded?.username,
+      }).exec();
 
-    if (!foundUser) return res.status(401).json({ message: "Unauthorized" });
+      if (!foundUser) return res.status(401).json({ message: "Unauthorized" });
 
-    const accessToken = jwt.sign(
-      {
-        UserInfo: {
-          username: foundUser.username,
-          roles: foundUser.roles,
-          wallet: foundUser.wallet,
+      const accessToken = jwt.sign(
+        {
+          userInfo: {
+            username: foundUser.username,
+            roles: foundUser.roles,
+            wallet: foundUser.wallet,
+          },
         },
-      },
-      env.ACCESS_TOKEN_SECRET,
-      { expiresIn: "60s" }
-    );
+        env.ACCESS_TOKEN_SECRET,
+        { expiresIn: "60s" }
+      );
 
-    res.json({ accessToken });
-  });
+      res.json({ accessToken });
+    }
+  );
 };
 
 /**

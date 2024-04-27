@@ -109,6 +109,28 @@ export const refresh: RequestHandler = (req: Request, res: Response) => {
   );
 };
 
+// export const refreshs: RequestHandler = (req: Request, res: Response) => {
+
+//   try {
+
+//   const cookies = req.cookies;
+//   if (!cookies?.jwt) return res.status(401).json({ message: "Unauthorized" });
+//   const refreshToken = cookies.jwt;
+
+//   const decoded = jwt.verify(
+//     refreshToken,
+//     env.REFRESH_TOKEN_SECRET
+//   );
+
+//   if (!decoded){
+//     throw new Error("verification error !")
+//   }
+
+//   } catch (error) {
+
+//   }
+// };
+
 /**
  * @description This function logs the user out by clearing the jwt cookie
  * @route POST /auth/logout

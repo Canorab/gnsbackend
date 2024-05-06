@@ -1,6 +1,7 @@
 import { NextFunction, Request, RequestHandler, Response } from "express";
 
 import DomainModel from "@/models/domain";
+import { GetUserType } from "@/config/schema.zod";
 import UserModel from "@/models/user";
 import { getNewDomains } from "@/helpers/domainHelpers";
 import { openseaGetUserNfts } from "@/helpers/web3Helpers";
@@ -11,7 +12,7 @@ export const updateUserDomains: RequestHandler = async (
   next: NextFunction
 ) => {
   //   const { id } = req.params;
-  const { wallet, username } = req.body;
+  const { wallet, username }: GetUserType["body"] = req.body;
 
   const user = await UserModel.findOne({ username }).select("-password").exec();
   if (!user) return res.status(409).json({ message: "User not found" });

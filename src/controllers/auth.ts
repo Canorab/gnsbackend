@@ -32,12 +32,16 @@ export const login: RequestHandler = async (req: Request, res: Response) => {
   }
 
   // At this point the username and password has been confirmed to be valid
+  // You might want to include other fields like; like email, firstName and lastName
+  // in the payload
   const accessToken = jwt.sign(
     {
       userInfo: {
+        id: foundUser._id,
         username: foundUser.username,
         roles: foundUser.roles,
         wallet: foundUser.wallet,
+        email: foundUser.email,
       },
     },
     env.ACCESS_TOKEN_SECRET,
@@ -49,7 +53,7 @@ export const login: RequestHandler = async (req: Request, res: Response) => {
     env.REFRESH_TOKEN_SECRET,
     {
       // expiresIn: "7d",
-      expiresIn: "3m",
+      expiresIn: "6m",
     }
   );
 
@@ -95,13 +99,15 @@ export const refresh: RequestHandler = (req: Request, res: Response) => {
       const accessToken = jwt.sign(
         {
           userInfo: {
+            id: foundUser._id,
             username: foundUser.username,
             roles: foundUser.roles,
             wallet: foundUser.wallet,
+            email: foundUser.email,
           },
         },
         env.ACCESS_TOKEN_SECRET,
-        { expiresIn: "60s" }
+        { expiresIn: "3m" }
       );
 
       res.json({ accessToken });

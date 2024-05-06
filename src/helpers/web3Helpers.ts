@@ -62,11 +62,12 @@ export const openseaGetUserNfts = async (address: string) => {
   //     console.error(error);
   //   });
 };
-const tester = async () => {
-  const address = "0x2655Bd807104830C47b8653484059119CF8B2C96";
-  const results = await openseaGetUserNfts(address);
-  console.log(results);
-};
+
+// const tester = async () => {
+//   const address = "0x2655Bd807104830C47b8653484059119CF8B2C96";
+//   const results = await openseaGetUserNfts(address);
+//   console.log(results);
+// };
 
 // tester();
 

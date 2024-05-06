@@ -6,6 +6,7 @@ import {
 } from "@/config/schema.zod";
 import { NextFunction, Request, RequestHandler, Response } from "express";
 
+import DomainModel from "@/models/domain";
 import UserModel from "@/models/user";
 import { Web3 } from "web3";
 import env from "@/env";
@@ -28,7 +29,7 @@ export const getAllUsers: RequestHandler = async (
    * * Implement the below in the pre-find hook of the UserModel
    */
   //1. Retreive all users docs from the users collection
-  const users = await UserModel.find().select("-password").lean();
+  const users = await UserModel.find().select("-password").lean().exec();
   if (!users?.length)
     return res.status(400).json({ message: "No users found !" });
 
@@ -50,9 +51,26 @@ export const getAllUsers: RequestHandler = async (
 
   // const web3 = new Web3(`https://mainnet.infura.io/v3/${env.INFURA_KEY}`);
   //  const {wallet, contract} = req.body
+  // Get User domains count
 
   // Final updated response
-  res.json(users);
+  const usersWithCount = await Promise.all(
+    users.map(async (user) => {
+      const domainCount = await DomainModel.aggregate([
+        {
+          $match: { username: user.username },
+        },
+      ]).count("total");
+
+      return {
+        id: user._id,
+        domainsCount: domainCount.length ? domainCount[0].total : 0,
+        ...user,
+      };
+    })
+  );
+
+  res.json(usersWithCount);
 };
 
 /**
@@ -76,11 +94,26 @@ export const getUser: RequestHandler = async (req: Request, res: Response) => {
   // const { id }: GetUserType["params"] = req.params;
   const { id } = req.params;
   // const { wallet }: GetUserType["body"] = req.body;
+  // const { username }: GetUserType["body"] = req.body;
 
   const user = await UserModel.findById(id).select("-password").lean().exec();
   if (!user) return res.status(409).json({ message: "User not found" });
+  // Get the user's Domain count via agggregate
+  const domainCount = await DomainModel.aggregate([
+    {
+      $match: {
+        username: `${user.username}`,
+      },
+    },
+  ]).count("total");
+  // Do not create a domainscount key in the user model, let it be added to
+  // the user object which will be sent to the frontend on-the-fly in the response.
+  const userObj = {
+    ...user,
+    domainCount: domainCount.length ? domainCount[0].total : 0,
+  };
 
-  res.json(user);
+  res.json(userObj);
 };
 
 /**
@@ -124,7 +157,7 @@ export const addUser: RequestHandler = async (req: Request, res: Response) => {
     lastName,
     password,
     email,
-    domainsCount,
+    // domainsCount,
     wallet,
     referrerId,
     referrerUsername,
@@ -152,7 +185,7 @@ Then assign it to the domainCount field before creating a new userModel doc.
     username,
     password,
     email,
-    domainsCount,
+    // domainsCount,
     wallet,
     referrerId,
     referrerUsername,
@@ -181,7 +214,7 @@ export const updateUser: RequestHandler = async (
   const {
     // id,
     username,
-    domainsCount,
+    // domainsCount,
     password,
     active,
   }: UserUpdateType["body"] = req.body;
@@ -209,7 +242,7 @@ export const updateUser: RequestHandler = async (
   // values from the provided data in res.body to the various fields of the first found user
   // or generated data in the case of password.
 
-  if (domainsCount) user.domainsCount = domainsCount; //parseInt(domains);
+  // if (domainsCount) user.domainsCount = domainsCount; //parseInt(domains);
   if (active) user.active = active;
   if (password) user.password = password;
 

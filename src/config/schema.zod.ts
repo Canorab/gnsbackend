@@ -22,10 +22,10 @@ export const userRegSchema = z.object({
     email: z
       .string({ required_error: "Email is  required !" })
       .email({ message: "Invalid email address" }),
-    domainsCount: z
-      .number({ invalid_type_error: " Invalid value for Domains" })
-      // .positive()
-      .default(0),
+    // domainsCount: z
+    //   .number({ invalid_type_error: " Invalid value for Domains" })
+    //   .positive()
+    //   .default(0),
     wallet: z
       .string({ required_error: "Wallet Address is Required" })
       .trim()
@@ -36,7 +36,8 @@ export const userRegSchema = z.object({
     referrerId: z
       .string({ required_error: "Referrer Id is Required" })
       .trim()
-      .min(24, { message: "Requires atleast 24 characters" }),
+      .min(24, { message: "Requires atleast 24 characters" })
+      .optional(),
     referrerUsername: z
       .string({ required_error: "Referrer Username is Required" })
       .trim()
@@ -87,10 +88,10 @@ export const userUpdateSchema = z.object({
       .trim()
       .min(4, { message: "Requires atleast 4 characters" }),
 
-    domainsCount: z
-      .number({ invalid_type_error: " Invalid value for Domains" })
-      .min(0)
-      .optional(),
+    // domainsCount: z
+    //   .number({ invalid_type_error: " Invalid value for Domains" })
+    //   .min(0)
+    //   .optional(),
 
     password: z
       .string({ required_error: "Password is  required !" })
@@ -129,6 +130,11 @@ export const getUserSchema = z.object({
       .string({ required_error: "Wallet Address is Required" })
       .trim()
       .min(10, { message: "Invalid Wallet Address" }),
+
+    username: z
+      .string({ required_error: "Username is  required !" })
+      .trim()
+      .min(4, { message: "Requires atleast 3 characters" }),
   }),
 });
 

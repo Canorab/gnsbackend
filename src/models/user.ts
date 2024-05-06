@@ -56,11 +56,11 @@ const userSchema = new Schema<UserDocument, {}, Methods>(
       trim: true,
       unique: true,
     },
-    domainsCount: {
-      type: Number,
-      // required: true,
-      default: 0,
-    },
+    // domainsCount: {
+    //   type: Number,
+    //   // required: true,
+    //   default: 0,
+    // },
     wallet: {
       type: String,
       required: true,
@@ -106,7 +106,11 @@ userSchema.pre("save", async function (next) {
   this.password = await hash(this.password, salt);
 });
 
-// userSchema.pre("find", async function () {});
+// userSchema.pre("find", async function () {
+//   console.log(this.getQuery);
+//   console.log(this.getFilter);
+//   console.log(this.getOptions);
+// });
 
 // userSchema.pre("findOne", async function (next, query) {
 //   // console.log(this.findOne());

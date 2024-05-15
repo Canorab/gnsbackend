@@ -24,24 +24,6 @@ export const getAllUsersDomains: RequestHandler = async (
   //   res.json({ message: "Contact reached! Receiving All domains soon!" });
 };
 
-/* This controller should fetch all nft domains from the blockchain using the opensea api and render in cards */
-// export const getAllContractDomains: RequestHandler = async (
-//   req: Request,
-//   res: Response
-// ) => {
-//   axios
-//     .request(options)
-//     .then(function (response) {
-//       //   console.log(response.data);
-//       res.json(response.data);
-//     })
-//     .catch(function (error) {
-//       console.error(error);
-//     });
-
-//   //   res.json({ message: "Contact reached! Receiving All domains soon!" });
-// };
-
 /**
  * @description This controller accepts a username param and fetches the user's nfts from the mongodb database
  * @param req

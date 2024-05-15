@@ -137,7 +137,24 @@ export const getUserReferrals: RequestHandler = async (
   if (!users?.length)
     return res.status(409).json({ message: "User has no referrals" });
 
-  res.json(users);
+  // Final updated response
+  const usersWithCount = await Promise.all(
+    users.map(async (user) => {
+      const domainCount = await DomainModel.aggregate([
+        {
+          $match: { username: user.username },
+        },
+      ]).count("total");
+
+      return {
+        id: user._id,
+        domainsCount: domainCount.length ? domainCount[0].total : 0,
+        ...user,
+      };
+    })
+  );
+
+  res.json(usersWithCount);
 };
 
 /**
@@ -178,6 +195,11 @@ Then assign it to the domainCount field before creating a new userModel doc.
     return res
       .status(409)
       .json({ message: "Username taken, try another one !" });
+
+  // Check if the referrer/affiliate exist
+  const referrer = await UserModel.findOne({ referrerUsername }).lean().exec();
+  if (!referrer)
+    return res.status(401).json({ message: "Invalid affiliate username." });
 
   const user = await UserModel.create({
     firstName,
@@ -300,6 +322,204 @@ export const getAllUsersCount: RequestHandler = async (
   res.json(...allUsersCount);
 };
 
+/* getAllUserWithStats
+ Use this to fetch all users along with their stats:
+ - Total Referrals Count
+ - Today Referrals Count
+ - Total Referrals Domains Count
+ - Today Referrals Domains count
+ STEPS:
+ 1. fetch all users from the User collecton.
+ : loop through the returned users and for each do the followiing;
+ - Initiate a mongodb  aggregation process on the User collection
+ :  stage 1: match all users with a "referrerUsername: user.username"(i.e the loop user's referrals). 
+ > Return the data in 2 groups: 1. sum of all doc (i.e Total Referrals). 2.  sum of docs for the day (Today's Referrals) ( use $exp to achieve this)
+ :  
+ : Stage 2: Using $exp; loop through the results from stage 1 and foreach item
+ execute a aggregaton pipeline to find docs in the Domains collection belonging
+ to the user(item) in the loop and return the results  or count/sum of the results.
+> Return results from each stage using the $group query:
+> Return the data in 2 groups: 1. sum of all doc (i.e Total Domains). 2.  sum of docs for the day (i.e  Today's Domains) ( use $exp to achieve this)
+
+OPTONAL STEPS
+1. Fetch all User from the UserModel using find()
+2. map through and for each user, do the following
+: Run a UserModel.aggregate to find all user docs which has the user's username in their referrerUsername
+these will be that user's referralsList. Add it to the const  StatsObject  with the key "referrals".
+Ths will enable you to calculate the ago time and derive Today's ReferralsList from the frontend.
+Alternatively, you can calculate the ago time here on the server and return both "referrals"
+and "TodayReferrals" key in the const statsObject.
+3. From within the same map function
+: Run a DomainModel.aggregate to find domain docs(domainsList) belonging to referrals of the user in the loop
+This would require the use of $lookup.
+you can make this a step in the previous aggregation operation since it about pulling  in a 
+user's referrals. 
+* If you choose to do everything in the aggregation pipeline, then you'll have to group by _id.
+* since all we need  are the referralsList and domainsList of each user along with their doc data
+* This should be the last stage/operation. I might not use it because the frontend needs the
+* _id of the user  doc and group will remove it.
+*/
+export const getAllUsersWithStats: RequestHandler = async (
+  req: Request,
+  res: Response
+) => {
+  const allUsers = await UserModel.find().select("-password").lean().exec();
+  const usersWithStats = await Promise.all(
+    allUsers.map(async (user) => {
+      // Get user's Referrals
+      const referrals = await UserModel.aggregate([
+        {
+          $match: {
+            referrerUsername: `${user.username}`,
+          },
+        },
+        {
+          $unset: "password",
+        },
+      ]);
+      // Get user's Referrals
+      // const referrals = await UserModel.aggregate([
+      //   {
+      //     $match: {
+      //       referrerUsername: `${user.username}`,
+      //     },
+      //   },
+      //   {
+      //     $unset: "password",
+      //   },
+      // ]);
+      // Get user's Today Referrals
+      const todayReferrals = await UserModel.aggregate([
+        {
+          $match: {
+            referrerUsername: `${user.username}`,
+          },
+        },
+        {
+          $match: {
+            $expr: {
+              $lt: [
+                {
+                  $dateDiff: {
+                    startDate: "$_id",
+                    endDate: "$$NOW",
+                    unit: "hour",
+                  },
+                },
+                24,
+              ],
+            },
+          },
+        },
+        {
+          $unset: "password",
+        },
+      ]);
+      // Get user's Referrals' Domains
+      const referralsDomains = await UserModel.aggregate([
+        { $match: { referrerUsername: `${user.username}` } },
+        {
+          $lookup: {
+            from: "domains",
+            localField: "username",
+            foreignField: "username",
+            as: "user_domains",
+          },
+        },
+        // {
+        //   $replaceRoot: {
+        //     newRoot: {
+        //       $mergeObjects: [{ $arrayElemAt: ["$user_domains", 0] }, "$$ROOT"],
+        //     },
+        //   },
+        // },
+        // { $project: { user_domains: 0 } },
+        {
+          $unset: "password",
+        },
+        {
+          $unwind: "$user_domains",
+        },
+        {
+          $match: {
+            user_domains: {
+              $exists: true,
+              $not: { $type: "array" },
+              $type: "object",
+            },
+          },
+        },
+        {
+          $replaceRoot: {
+            newRoot: "$user_domains",
+          },
+        },
+      ]);
+
+      // Get User's Today Referrals Domains
+      const todayReferralsDomains = await UserModel.aggregate([
+        { $match: { referrerUsername: `${user.username}` } },
+        {
+          $lookup: {
+            from: "domains",
+            localField: "username",
+            foreignField: "username",
+            as: "user_domains",
+          },
+        },
+        {
+          $match: {
+            $expr: {
+              $lt: [
+                {
+                  $dateDiff: {
+                    startDate: "$_id",
+                    endDate: "$$NOW",
+                    unit: "hour",
+                  },
+                },
+                24,
+              ],
+            },
+          },
+        },
+        {
+          $unset: "password",
+        },
+        {
+          $unwind: "$user_domains",
+        },
+        {
+          $match: {
+            user_domains: {
+              $exists: true,
+              $not: { $type: "array" },
+              $type: "object",
+            },
+          },
+        },
+        {
+          $replaceRoot: {
+            newRoot: "$user_domains",
+          },
+        },
+      ]);
+
+      return {
+        ...user,
+        referrals,
+        referralsDomains,
+        todayReferrals,
+        todayReferralsDomains,
+      };
+    })
+  );
+
+  // const allUser =  await UserModel.aggregate([
+  //   {}
+  // ])
+  res.json(usersWithStats);
+};
 // 2. getTodayUsersCount - This controller should respond with the numbers of docs from the Users collection whose createdAt field
 // has a value of 24 hours or less.
 
@@ -445,3 +665,6 @@ export const getTodayUserReferralDomainsCount: RequestHandler = async (
 };
 
 // Date string: <YYYY-mm-ddTHH:MM:ssZ>
+
+// USE THIS TO PROVIDE DATA FOR AFFILIATE users
+//getAllUsersReferralsCount

@@ -29,7 +29,8 @@ const verifyJWT: RequestHandler = async (
     }
     next();
   } catch (error) {
-    res.status(401).json({ message: "Failed to Authenticate !" });
+    // console.log(error);
+    res.status(403).json({ message: "Failed to Authenticate." });
   }
 
   // jwt.verify(token, env.ACCESS_TOKEN_SECRET, (err, decodedUser) => {

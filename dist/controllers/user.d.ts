@@ -1,0 +1,14 @@
+import { RequestHandler } from "express";
+export declare const getAllUsers: RequestHandler;
+export declare const getUser: RequestHandler;
+export declare const getUserReferrals: RequestHandler;
+export declare const addUser: RequestHandler;
+export declare const updateUser: RequestHandler;
+export declare const deleteUser: RequestHandler;
+export declare const getAllUsersCount: RequestHandler;
+export declare const getAllUsersWithStats: RequestHandler;
+export declare const getTodayUsersCount: RequestHandler;
+export declare const getUserReferralsCount: RequestHandler;
+export declare const getTodayUserReferralsCount: RequestHandler;
+export declare const getUserReferralDomainsCount: RequestHandler;
+export declare const getTodayUserReferralDomainsCount: RequestHandler;

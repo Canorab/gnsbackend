@@ -3,6 +3,7 @@ import {
   deleteUser,
   getAllUsers,
   getAllUsersCount,
+  getAllUsersWithStats,
   getTodayUserReferralDomainsCount,
   getTodayUserReferralsCount,
   getTodayUsersCount,
@@ -20,17 +21,23 @@ import {
 } from "@/config/schema.zod";
 
 import { Router } from "express";
+import { getStatsForAdmin } from "@/controllers/stats";
 import { updateAllUsersDomains } from "@/middlewares/updateAllUsersDomains";
 import { updateUserDomains } from "@/middlewares/updateUserDomains";
 import { validate } from "./../middlewares/zod.middleware";
+import verifyJWT from "@/middlewares/verifyJWT";
 
 const userRouter = Router();
+
+userRouter.use(verifyJWT);
 
 userRouter
   .route("/")
   .get(updateAllUsersDomains, getAllUsers)
   .post(validate(userRegSchema), addUser);
 //   .delete(validate(userDeleteSchema), deleteUser);
+// Fetches all users along with stats
+userRouter.route("/affiliates").get(getAllUsersWithStats);
 userRouter
   .route("/:id")
   .get(validate(getUserSchema), updateUserDomains, getUser)
@@ -57,8 +64,10 @@ userRouter
   .get(getTodayUserReferralDomainsCount);
 
 // Stats For Admin
+userRouter.route("/stats/all").get(getStatsForAdmin); // All admin stats
 userRouter.route("/stats/allusers").get(getAllUsersCount); // All time signups
 userRouter.route("/stats/today").get(getTodayUsersCount); // Signups for the day
+
 // userRouter.route("/stats/alldomains").get(getAllUsersReferralsCount);
 //   .get("/users", getAllUsers)
 //   .post("/users", validate(userRegSchema), addUser);

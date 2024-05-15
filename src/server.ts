@@ -8,11 +8,12 @@ import path from "path";
 // import { zodMiddleware } from "./middlewares/zod.middleware";
 import userRouter from "./routes/user";
 import { getUser } from "./controllers/user";
-import domainsRouter from "./routes/domain";
+import domainRouter from "./routes/domain";
 import authRouter from "./routes/auth";
 import cors from "cors";
 import corsOptions from "./config/corsOptions";
 import cookieParser from "cookie-parser";
+import statsRouter from "./routes/stats";
 
 const app = express();
 const PORT = env.PORT || 5001;
@@ -34,7 +35,8 @@ app.get("/", (req, res) => {
 //  Endpoints & Routes
 app.use("/api/auth", authRouter);
 app.use("/api/users", userRouter);
-app.use("/api/domains", domainsRouter);
+app.use("/api/domains", domainRouter);
+app.use("/api/stats", statsRouter);
 // app.get("/users/:id", getUser);
 
 app.all("*", (req, res) => {

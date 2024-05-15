@@ -4,7 +4,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 require("dotenv").config();
-require("dist/db");
+require("./db/index");
 const env_1 = __importDefault(require("./env"));
 const express_1 = __importDefault(require("express"));
 const path_1 = __importDefault(require("path"));

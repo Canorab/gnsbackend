@@ -5,7 +5,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const domain_1 = require("../controllers/domain");
 const express_1 = require("express");
-const verifyJWT_1 = __importDefault(require("../middlewares/verifyJWT"));
+// const verifyJWT_1 = __importDefault(require("../middlewares/verifyJWT"));
 const domainRouter = (0, express_1.Router)();
 domainRouter.use(verifyJWT_1.default);
 domainRouter.route("/").get(domain_1.getAllUsersDomains);

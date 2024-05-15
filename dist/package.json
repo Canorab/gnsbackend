@@ -1,0 +1,39 @@
+{
+  "name": "gnsbackend",
+  "version": "1.0.0",
+  "description": "Gns Backend App",
+  "main": "server.js",
+  "scripts": {
+    "start": "node ./dist",
+    "build": "tsc && tsc-alias"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@maticnetwork/maticjs-web3": "^1.0.4",
+    "@moralisweb3/common-evm-utils": "^2.26.1",
+    "@types/bcrypt": "^5.0.2",
+    "@types/express": "^4.17.21",
+    "axios": "^1.6.8",
+    "bcrypt": "^5.1.1",
+    "cookie-parser": "^1.4.6",
+    "cors": "^2.8.5",
+    "date-fns": "^3.6.0",
+    "dotenv": "^16.4.5",
+    "envalid": "^8.0.0",
+    "ethers": "^6.11.1",
+    "express": "^4.19.2",
+    "express-async-errors": "^3.1.1",
+    "express-rate-limit": "^7.2.0",
+    "jsonwebtoken": "^9.0.2",
+    "mongoose": "^8.3.1",
+    "mongoose-sequence": "^6.0.1",
+    "moralis": "^2.26.1",
+    "opensea-js": "^7.1.7",
+    "uuid": "^9.0.1",
+    "web3": "^4.7.0",
+    "zod": "^3.22.4"
+  }
+
+}

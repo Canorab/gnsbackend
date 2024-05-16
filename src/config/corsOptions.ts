@@ -25,7 +25,8 @@ import allowedOrigns from "./allowedOrigns";
 // };
 const corsOptions: CorsOptions = {
   origin: (origin, callback) => {
-    if (allowedOrigns.indexOf(origin as string) !== -1 || !origin) {
+    // @ts-ignore
+    if (allowedOrigns.indexOf(origin) !== -1 || !origin) {
       callback(null, true);
     } else {
       callback(new Error("Access denied by CORS"));

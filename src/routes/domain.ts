@@ -13,7 +13,7 @@ import { validate } from "./../middlewares/zod.middleware";
 import verifyJWT from "@/middlewares/verifyJWT";
 
 const domainRouter = Router();
-// domainRouter.use(verifyJWT);
+domainRouter.use(verifyJWT);
 // AddMany add all the nft  domains returned by web3js from the blockchan to mongodb in separate docs
 domainRouter.route("/").get(getAllUsersDomains);
 domainRouter.route("/:username").get(getUserDomains); // Update the user's ntf domains on Db with their new collections from the blockchain before send response

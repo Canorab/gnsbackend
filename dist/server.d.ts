@@ -1,1 +1,1 @@
-import "src/db";
+import "./db/index";

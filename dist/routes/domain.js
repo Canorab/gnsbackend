@@ -7,7 +7,7 @@ const domain_1 = require("../controllers/domain");
 const express_1 = require("express");
 const verifyJWT_1 = __importDefault(require("../middlewares/verifyJWT"));
 const domainRouter = (0, express_1.Router)();
-// domainRouter.use(verifyJWT_1.default);
+domainRouter.use(verifyJWT_1.default);
 domainRouter.route("/").get(domain_1.getAllUsersDomains);
 domainRouter.route("/:username").get(domain_1.getUserDomains);
 domainRouter.route("/stats/all").get(domain_1.getAllDomainsCount);

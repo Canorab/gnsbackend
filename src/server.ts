@@ -1,6 +1,6 @@
 require("dotenv").config();
 
-import "src/db";
+import "./db/index";
 
 import env from "./env";
 import express, { type Request } from "express";

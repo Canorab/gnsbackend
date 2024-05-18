@@ -45,15 +45,15 @@ export const login: RequestHandler = async (req: Request, res: Response) => {
       },
     },
     env.ACCESS_TOKEN_SECRET,
-    { expiresIn: "3m" }
+    { expiresIn: "1m" }
   );
 
   const refreshToken = jwt.sign(
     { username: foundUser.username },
     env.REFRESH_TOKEN_SECRET,
     {
-      // expiresIn: "7d",
-      expiresIn: "6m",
+      expiresIn: "7d",
+      // expiresIn: "6m",
     }
   );
 
@@ -107,7 +107,7 @@ export const refresh: RequestHandler = (req: Request, res: Response) => {
           },
         },
         env.ACCESS_TOKEN_SECRET,
-        { expiresIn: "3m" }
+        { expiresIn: "1m" }
       );
 
       res.json({ accessToken });

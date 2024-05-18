@@ -60,9 +60,9 @@ const login = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
             wallet: foundUser.wallet,
             email: foundUser.email,
         },
-    }, env_1.default.ACCESS_TOKEN_SECRET, { expiresIn: "3m" });
+    }, env_1.default.ACCESS_TOKEN_SECRET, { expiresIn: "1m" });
     const refreshToken = jwt.sign({ username: foundUser.username }, env_1.default.REFRESH_TOKEN_SECRET, {
-        expiresIn: "6m",
+        expiresIn: "7d",
     });
     res.cookie("jwt", refreshToken, {
         httpOnly: true,
@@ -94,7 +94,7 @@ const refresh = (req, res) => {
                 wallet: foundUser.wallet,
                 email: foundUser.email,
             },
-        }, env_1.default.ACCESS_TOKEN_SECRET, { expiresIn: "3m" });
+        }, env_1.default.ACCESS_TOKEN_SECRET, { expiresIn: "1m" });
         res.json({ accessToken });
     }));
 };

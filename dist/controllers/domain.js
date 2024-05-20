@@ -18,7 +18,7 @@ const user_1 = __importDefault(require("../models/user"));
 const getAllUsersDomains = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const domains = yield domain_1.default.find().exec();
     if (!domains)
-        return res.status(400).json({ message: "No Domains Found!" });
+        return res.status(404).json({ message: "No Domains Found!" });
     res.json(domains);
 });
 exports.getAllUsersDomains = getAllUsersDomains;
@@ -26,12 +26,12 @@ const getUserDomains = (req, res) => __awaiter(void 0, void 0, void 0, function*
     const { username } = req.params;
     const user = yield user_1.default.findOne({ username }).lean().exec();
     if (!user)
-        return res.status(400).json({ message: " User not found !" });
+        return res.status(404).json({ message: " User not found !" });
     if (user.active === false)
-        return res.status(409).json({ message: "Banned User. Contact Admin !" });
-    const domains = yield domain_1.default.find({ username }).exec();
-    if (!domains)
-        return res.status(400).json({ message: " User doesn't have any domains!" });
+        return res.status(403).json({ message: "Banned User. Contact Admin !" });
+    const domains = yield domain_1.default.find({ username }).lean().exec();
+    if (!(domains === null || domains === void 0 ? void 0 : domains.length))
+        return res.status(404).json({ message: "No domains found." });
     res.json(domains);
 });
 exports.getUserDomains = getUserDomains;
@@ -42,7 +42,7 @@ const getUserDomainsCount = (req, res) => __awaiter(void 0, void 0, void 0, func
         .lean()
         .exec();
     if (!user)
-        return res.status(403).json({ message: "User not found !" });
+        return res.status(404).json({ message: "User not found !" });
     const domainsCount = yield domain_1.default.aggregate([
         {
             $match: {

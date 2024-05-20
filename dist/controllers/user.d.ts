@@ -2,6 +2,7 @@ import { RequestHandler } from "express";
 export declare const getAllUsers: RequestHandler;
 export declare const getUser: RequestHandler;
 export declare const getUserReferrals: RequestHandler;
+export declare const getUserReferralDomains: RequestHandler;
 export declare const addUser: RequestHandler;
 export declare const updateUser: RequestHandler;
 export declare const deleteUser: RequestHandler;

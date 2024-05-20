@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getTodayUserReferralDomainsCount = exports.getUserReferralDomainsCount = exports.getTodayUserReferralsCount = exports.getUserReferralsCount = exports.getTodayUsersCount = exports.getAllUsersWithStats = exports.getAllUsersCount = exports.deleteUser = exports.updateUser = exports.addUser = exports.getUserReferrals = exports.getUser = exports.getAllUsers = void 0;
+exports.getTodayUserReferralDomainsCount = exports.getUserReferralDomainsCount = exports.getTodayUserReferralsCount = exports.getUserReferralsCount = exports.getTodayUsersCount = exports.getAllUsersWithStats = exports.getAllUsersCount = exports.deleteUser = exports.updateUser = exports.addUser = exports.getUserReferralDomains = exports.getUserReferrals = exports.getUser = exports.getAllUsers = void 0;
 const domain_1 = __importDefault(require("../models/domain"));
 const user_1 = __importDefault(require("../models/user"));
 const getAllUsers = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
@@ -53,7 +53,7 @@ const getUserReferrals = (req, res) => __awaiter(void 0, void 0, void 0, functio
         .lean()
         .exec();
     if (!(users === null || users === void 0 ? void 0 : users.length))
-        return res.status(409).json({ message: "User has no referrals" });
+        return res.status(404).json({ message: "No referrals found." });
     const usersWithCount = yield Promise.all(users.map((user) => __awaiter(void 0, void 0, void 0, function* () {
         const domainCount = yield domain_1.default.aggregate([
             {
@@ -65,6 +65,50 @@ const getUserReferrals = (req, res) => __awaiter(void 0, void 0, void 0, functio
     res.json(usersWithCount);
 });
 exports.getUserReferrals = getUserReferrals;
+const getUserReferralDomains = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { username } = req.params;
+    const users = yield user_1.default.find({ referrerUsername: username })
+        .select("-password")
+        .lean()
+        .exec();
+    if (!(users === null || users === void 0 ? void 0 : users.length))
+        return res
+            .status(404)
+            .json({ message: "User must have at least 1 referral to proceed." });
+    const userReferralDomains = yield user_1.default.aggregate([
+        { $match: { referrerUsername: `${username}` } },
+        {
+            $lookup: {
+                from: "domains",
+                localField: "username",
+                foreignField: "username",
+                as: "user_domains",
+            },
+        },
+        {
+            $unset: "password",
+        },
+        {
+            $unwind: "$user_domains",
+        },
+        {
+            $match: {
+                user_domains: {
+                    $exists: true,
+                    $not: { $type: "array" },
+                    $type: "object",
+                },
+            },
+        },
+        {
+            $replaceRoot: {
+                newRoot: "$user_domains",
+            },
+        },
+    ]);
+    res.json(userReferralDomains);
+});
+exports.getUserReferralDomains = getUserReferralDomains;
 const addUser = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { username, firstName, lastName, password, email, wallet, referrerId, referrerUsername, roles, active, terms, } = req.body;
     const duplicate = yield user_1.default.findOne({ username })

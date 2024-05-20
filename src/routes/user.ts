@@ -8,6 +8,7 @@ import {
   getTodayUserReferralsCount,
   getTodayUsersCount,
   getUser,
+  getUserReferralDomains,
   getUserReferralDomainsCount,
   getUserReferrals,
   getUserReferralsCount,
@@ -29,7 +30,7 @@ import verifyJWT from "@/middlewares/verifyJWT";
 
 const userRouter = Router();
 
-userRouter.use(verifyJWT);
+// userRouter.use(verifyJWT);
 
 userRouter
   .route("/")
@@ -45,6 +46,7 @@ userRouter
   .delete(deleteUser);
 
 userRouter.route("/referrals/:username").get(getUserReferrals);
+userRouter.route("/referrals/domains/:username").get(getUserReferralDomains);
 
 // Basic Users stats - moved to Domains routes
 // userRouter

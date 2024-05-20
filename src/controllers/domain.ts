@@ -12,7 +12,7 @@ export const getAllUsersDomains: RequestHandler = async (
   res: Response
 ) => {
   const domains = await DomainModel.find().exec();
-  if (!domains) return res.status(400).json({ message: "No Domains Found!" });
+  if (!domains) return res.status(404).json({ message: "No Domains Found!" });
 
   res.json(domains);
 
@@ -43,15 +43,15 @@ export const getUserDomains: RequestHandler = async (
   //   const user = await UserModel.findById({ username }).lean().exec();
   const user = await UserModel.findOne({ username }).lean().exec();
 
-  if (!user) return res.status(400).json({ message: " User not found !" });
+  if (!user) return res.status(404).json({ message: " User not found !" });
 
   if (user.active === false)
-    return res.status(409).json({ message: "Banned User. Contact Admin !" });
+    return res.status(403).json({ message: "Banned User. Contact Admin !" });
 
   // From this point on, you can fetch nfts from Mongodb
-  const domains = await DomainModel.find({ username }).exec();
-  if (!domains)
-    return res.status(400).json({ message: " User doesn't have any domains!" });
+  const domains = await DomainModel.find({ username }).lean().exec();
+  if (!domains?.length)
+    return res.status(404).json({ message: "No domains found." });
 
   res.json(domains);
 };
@@ -67,7 +67,7 @@ export const getUserDomainsCount: RequestHandler = async (
     .select("-password")
     .lean()
     .exec();
-  if (!user) return res.status(403).json({ message: "User not found !" });
+  if (!user) return res.status(404).json({ message: "User not found !" });
   const domainsCount = await DomainModel.aggregate([
     {
       $match: {

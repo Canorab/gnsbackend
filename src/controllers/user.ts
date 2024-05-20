@@ -135,7 +135,8 @@ export const getUserReferrals: RequestHandler = async (
     .lean()
     .exec();
   if (!users?.length)
-    return res.status(409).json({ message: "User has no referrals" });
+    // Status 409 is for conflict, change to 403 0r 404  - for resource not found
+    return res.status(404).json({ message: "No referrals found." });
 
   // Final updated response
   const usersWithCount = await Promise.all(
@@ -155,6 +156,97 @@ export const getUserReferrals: RequestHandler = async (
   );
 
   res.json(usersWithCount);
+};
+
+// GET A USER'S REFFERALS DOMAINS
+
+export const getUserReferralDomains: RequestHandler = async (
+  req: Request,
+  res: Response
+) => {
+  const { username } = req.params;
+  // const userReferralDomains = await UserModel.aggregate([
+  //   { $match: { referrerUsername: `${username}` } },
+  //   {
+  //     $lookup: {
+  //       from: "domains",
+  //       localField: "username",
+  //       foreignField: "username",
+  //       as: "user_domains",
+  //     },
+  //   },
+  //   {
+  //     $unwind: "$user_domains",
+  //   },
+  //   // {
+  //   //   $group: {
+  //   //     _id: null,
+  //   //     total: { $sum: 1 },
+  //   //   },
+  //   // },
+  // ]);
+
+  const users = await UserModel.find({ referrerUsername: username })
+    .select("-password")
+    .lean()
+    .exec();
+  if (!users?.length)
+    // Status 409 is for conflict, change to 403 0r 404  - for resource not found
+    return res
+      .status(404)
+      .json({ message: "User must have at least 1 referral to proceed." });
+
+  // Final updated response
+  // const userReferralDomains = await Promise.all(
+  //   users.map(async (user) => {
+  //     const domains = await DomainModel.aggregate([
+  //       {
+  //         $match: { username: user.username },
+  //       },
+  //     ]);
+
+  //     // return {
+  //     //   id: user._id,
+  //     //   ...user,
+  //     // };
+  //     return { ...domains };
+  //   })
+  // );
+
+  // Get user's Referrals' Domains
+  const userReferralDomains = await UserModel.aggregate([
+    { $match: { referrerUsername: `${username}` } },
+    {
+      $lookup: {
+        from: "domains",
+        localField: "username",
+        foreignField: "username",
+        as: "user_domains",
+      },
+    },
+    {
+      $unset: "password",
+    },
+    {
+      $unwind: "$user_domains",
+    },
+    {
+      $match: {
+        user_domains: {
+          $exists: true,
+          $not: { $type: "array" },
+          $type: "object",
+        },
+      },
+    },
+    {
+      $replaceRoot: {
+        newRoot: "$user_domains",
+      },
+    },
+  ]);
+
+  res.json(userReferralDomains);
 };
 
 /**

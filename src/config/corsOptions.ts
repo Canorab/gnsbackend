@@ -4,7 +4,6 @@
  * @Date: 2024-01-04 19:01:30
  * @LastEditors: Joshua Eigbe jeigbe@gmail.com
  * @LastEditTime: 2024-01-31 13:58:55
- * @FilePath: /quicktickets_backend/config/corsOptions.js
  * @copyrightText: Copyright (c) Joshua Eigbe. All Rights Reserved.
  * @Description: See Github repo
  */

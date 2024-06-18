@@ -1,4 +1,7 @@
 "use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 const user_1 = require("../controllers/user");
 const schema_zod_1 = require("../config/schema.zod");
@@ -7,7 +10,9 @@ const stats_1 = require("../controllers/stats");
 const updateAllUsersDomains_1 = require("../middlewares/updateAllUsersDomains");
 const updateUserDomains_1 = require("../middlewares/updateUserDomains");
 const zod_middleware_1 = require("./../middlewares/zod.middleware");
+const verifyJWT_1 = __importDefault(require("../middlewares/verifyJWT"));
 const userRouter = (0, express_1.Router)();
+userRouter.use(verifyJWT_1.default);
 userRouter
     .route("/")
     .get(updateAllUsersDomains_1.updateAllUsersDomains, user_1.getAllUsers)

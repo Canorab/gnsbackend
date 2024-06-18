@@ -30,7 +30,7 @@ import verifyJWT from "@/middlewares/verifyJWT";
 
 const userRouter = Router();
 
-// userRouter.use(verifyJWT);
+userRouter.use(verifyJWT);
 
 userRouter
   .route("/")

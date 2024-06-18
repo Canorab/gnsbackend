@@ -17,6 +17,19 @@ export const getNewDomains = (
   const newNfts = apiRes?.filter((item) => !ownedNfts.includes(item.name));
   return newNfts;
 };
+// export const getNewDomains = <T, K extends { name: string }>(
+//   apiRes: T[],
+//   dbRes: K[]
+// ) => {
+//   if (!apiRes?.length) return; // If user hasn't bought any Nft, terminate.
+//   if (!dbRes?.length) {
+//     const results = apiRes.map((item) => item);
+//     return results;
+//   }
+//   const ownedNfts = dbRes.map((item) => item.name);
+//   const newNfts = apiRes?.filter((item) => !ownedNfts.includes(item.name));
+//   return newNfts;
+// };
 
 // const apiRes:Object[] = new Array()
 export const apiRes = [

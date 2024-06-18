@@ -289,7 +289,12 @@ Then assign it to the domainCount field before creating a new userModel doc.
       .json({ message: "Username taken, try another one !" });
 
   // Check if the referrer/affiliate exist
-  const referrer = await UserModel.findOne({ referrerUsername }).lean().exec();
+  // BUG: I was initially checking if the provided affiliate user has at least one referred user
+  // with findOne({ referrerUsername })
+  // Instead of checking if it existed with findOne({ username: referrerUsername })
+  const referrer = await UserModel.findOne({ username: referrerUsername })
+    .lean()
+    .exec();
   if (!referrer)
     return res.status(401).json({ message: "Invalid affiliate username." });
 

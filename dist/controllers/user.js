@@ -119,7 +119,9 @@ const addUser = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         return res
             .status(409)
             .json({ message: "Username taken, try another one !" });
-    const referrer = yield user_1.default.findOne({ referrerUsername }).lean().exec();
+    const referrer = yield user_1.default.findOne({ username: referrerUsername })
+        .lean()
+        .exec();
     if (!referrer)
         return res.status(401).json({ message: "Invalid affiliate username." });
     const user = yield user_1.default.create({

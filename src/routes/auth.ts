@@ -8,7 +8,7 @@ import { validate } from "@/middlewares/zod.middleware";
 
 const authRouter = Router();
 
-authRouter.route("/").post(validate(userLoginSchema), loginLimiter, login);
+authRouter.route("/").post(validate(userLoginSchema), login);
 authRouter.route("/refresh").get(refresh);
 authRouter.route("/signup").post(validate(userRegSchema), addUser);
 authRouter.route("/logout").post(logout);

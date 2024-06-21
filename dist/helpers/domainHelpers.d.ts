@@ -1,18 +1,8 @@
-import { domainSchemaType, nftListSchemaType } from "../config/schema.zod";
-export declare const getNewDomains: (apiRes: nftListSchemaType["nfts"] | undefined, dbRes: domainSchemaType[]) => {
+export declare const getNewDomains: <T extends {
     name: string;
-    image_url: string;
-    description: string;
-    identifier: string;
-    collection: string;
-    contract: string;
-    token_standard: string;
-    metadata_url: string;
-    opensea_url: string;
-    updated_at: string;
-    is_disabled: boolean;
-    is_nsfw: boolean;
-}[] | undefined;
+}, K extends {
+    name: string;
+}>(apiRes: T[] | undefined, dbRes: K[]) => T[] | undefined;
 export declare const apiRes: {
     name: string;
     collection: string;

@@ -2,13 +2,6 @@ import { Document, Model, Schema, model } from "mongoose";
 
 import { domainCreateType } from "@/config/schema.zod";
 
-// type DomainDocument = Document & {
-//   userId: string;
-//   username: string;
-//   firstName: string;
-//   lastName: string;
-//   value: string;
-// };
 type DomainDocument = Document & domainCreateType["body"];
 
 const domainSchema = new Schema<DomainDocument, {}>(

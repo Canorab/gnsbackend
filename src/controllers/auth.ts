@@ -80,6 +80,7 @@ export const login: RequestHandler = async (req: Request, res: Response) => {
 export const refresh: RequestHandler = (req: Request, res: Response) => {
   const cookies = req.cookies;
 
+  // if (!cookies?.jwt) return res.status(401).json({ message: "Unauthorized" });
   if (!cookies?.jwt) return res.status(401).json({ message: "Unauthorized" });
 
   const refreshToken = cookies.jwt;

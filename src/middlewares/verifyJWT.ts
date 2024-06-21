@@ -27,7 +27,7 @@ const verifyJWT: RequestHandler = async (
       (req as CustomRequest).userInfo = decoded;
       //   console.log(decoded);
     }
-    next();
+    next(); // added return
   } catch (error) {
     // console.log(error);
     res.status(403).json({ message: "Failed to Authenticate." });

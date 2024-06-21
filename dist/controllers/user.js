@@ -109,35 +109,40 @@ const getUserReferralDomains = (req, res) => __awaiter(void 0, void 0, void 0, f
     res.json(userReferralDomains);
 });
 exports.getUserReferralDomains = getUserReferralDomains;
-const addUser = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const { username, firstName, lastName, password, email, wallet, referrerId, referrerUsername, roles, active, terms, } = req.body;
-    const duplicate = yield user_1.default.findOne({ username })
-        .collation({ locale: "en", strength: 2 })
-        .lean()
-        .exec();
-    if (duplicate)
-        return res
-            .status(409)
-            .json({ message: "Username taken, try another one !" });
-    const referrer = yield user_1.default.findOne({ username: referrerUsername })
-        .lean()
-        .exec();
-    if (!referrer)
-        return res.status(401).json({ message: "Invalid affiliate username." });
-    const user = yield user_1.default.create({
-        firstName,
-        lastName,
-        username,
-        password,
-        email,
-        wallet,
-        referrerId,
-        referrerUsername,
-        roles,
-        active,
-        terms,
-    });
-    res.json({ message: "User created successfully !", body: user });
+const addUser = (req, res, callback) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const { username, firstName, lastName, password, email, wallet, referrerId, referrerUsername, roles, active, terms, } = req.body;
+        const duplicate = yield user_1.default.findOne({ username })
+            .collation({ locale: "en", strength: 2 })
+            .lean()
+            .exec();
+        if (duplicate)
+            return res
+                .status(409)
+                .json({ message: "Username taken, try another one !" });
+        const referrer = yield user_1.default.findOne({ username: referrerUsername })
+            .lean()
+            .exec();
+        if (!referrer)
+            return res.status(401).json({ message: "Invalid affiliate username." });
+        const user = yield user_1.default.create({
+            firstName,
+            lastName,
+            username,
+            password,
+            email,
+            wallet,
+            referrerId,
+            referrerUsername,
+            roles,
+            active,
+            terms,
+        });
+        res.json({ message: "User created successfully !" });
+    }
+    catch (error) {
+        console.log(error);
+    }
 });
 exports.addUser = addUser;
 const updateUser = (req, res) => __awaiter(void 0, void 0, void 0, function* () {

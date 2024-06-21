@@ -29,24 +29,29 @@ const updateUserDomains = (req, res, next) => __awaiter(void 0, void 0, void 0, 
     const newDomains = (0, domainHelpers_1.getNewDomains)(userNfts, ownedDomains);
     if (newDomains === null || newDomains === void 0 ? void 0 : newDomains.length) {
         newDomains.map((item) => __awaiter(void 0, void 0, void 0, function* () {
-            const newDomainDoc = {
-                userId: user._id,
-                username: user.username,
-                firstName: user.firstName,
-                lastName: user.lastName,
-                name: item.name,
-                image_url: item.image_url,
-                identfier: item.identifier,
-                wallet: user.wallet,
-                data: {
+            try {
+                const newDomainDoc = {
+                    userId: user._id,
+                    username: user.username,
+                    firstName: user.firstName,
+                    lastName: user.lastName,
                     name: item.name,
-                    description: item.description,
                     image_url: item.image_url,
-                    identifier: item.identifier,
-                },
-            };
-            const result = yield domain_1.default.create(newDomainDoc);
-            console.log("New domain added:", result);
+                    identfier: item.identifier,
+                    wallet: user.wallet,
+                    data: {
+                        name: item.name,
+                        description: item.description,
+                        image_url: item.image_url,
+                        identifier: item.identifier,
+                    },
+                };
+                const result = yield domain_1.default.create(newDomainDoc);
+                console.log("New domain added:", result);
+            }
+            catch (error) {
+                console.log(error);
+            }
         }));
     }
     next();

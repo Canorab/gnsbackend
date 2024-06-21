@@ -91,24 +91,29 @@ userSchema.post("save", function (doc, next) {
         const newDomains = (0, domainHelpers_1.getNewDomains)(userNfts, userDomains);
         if (newDomains === null || newDomains === void 0 ? void 0 : newDomains.length) {
             newDomains.map((item) => __awaiter(this, void 0, void 0, function* () {
-                const newDomainDoc = {
-                    userId: doc._id,
-                    username: doc.username,
-                    firstName: doc.firstName,
-                    lastName: doc.lastName,
-                    name: item.name,
-                    image_url: item.image_url,
-                    identfier: item.identifier,
-                    wallet: doc.wallet,
-                    data: {
+                try {
+                    const newDomainDoc = {
+                        userId: doc._id,
+                        username: doc.username,
+                        firstName: doc.firstName,
+                        lastName: doc.lastName,
                         name: item.name,
-                        description: item.description,
                         image_url: item.image_url,
-                        identifier: item.identifier,
-                    },
-                };
-                const response = yield domain_1.default.create(newDomainDoc);
-                console.log(`New Domain Created:`, response);
+                        identfier: item.identifier,
+                        wallet: doc.wallet,
+                        data: {
+                            name: item.name,
+                            description: item.description,
+                            image_url: item.image_url,
+                            identifier: item.identifier,
+                        },
+                    };
+                    const response = yield domain_1.default.create(newDomainDoc);
+                    console.log(`New Domain Created:`, response);
+                }
+                catch (error) {
+                    console.log(error);
+                }
             }));
         }
         next();

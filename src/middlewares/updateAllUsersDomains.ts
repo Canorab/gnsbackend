@@ -23,25 +23,29 @@ export const updateAllUsersDomains: RequestHandler = async (
     const newDomains = getNewDomains(userNfts, ownedDomains);
     if (newDomains?.length) {
       newDomains.map(async (item) => {
-        const newDomainDoc = {
-          userId: user._id,
-          username: user.username,
-          firstName: user.firstName,
-          lastName: user.lastName,
-          name: item.name,
-          image_url: item.image_url,
-          identfier: item.identifier,
-          wallet: user.wallet,
-          data: {
+        try {
+          const newDomainDoc = {
+            userId: user._id,
+            username: user.username,
+            firstName: user.firstName,
+            lastName: user.lastName,
             name: item.name,
-            description: item.description,
             image_url: item.image_url,
-            identifier: item.identifier,
-          },
-        };
+            identfier: item.identifier,
+            wallet: user.wallet,
+            data: {
+              name: item.name,
+              description: item.description,
+              image_url: item.image_url,
+              identifier: item.identifier,
+            },
+          };
 
-        const result = await DomainModel.create(newDomainDoc);
-        console.log("New domain added:", result);
+          const result = await DomainModel.create(newDomainDoc);
+          console.log("New domain added:", result);
+        } catch (error) {
+          console.log(error);
+        }
       });
       // Update user's domainCount
       // const results = await UserModel.updateOne(

@@ -257,63 +257,70 @@ export const getUserReferralDomains: RequestHandler = async (
  * @returns
  */
 
-export const addUser: RequestHandler = async (req: Request, res: Response) => {
-  //   userSchema.parse(req.body);
+export const addUser: RequestHandler = async (
+  req: Request,
+  res: Response,
+  callback
+) => {
+  try {
+    //   userSchema.parse(req.body);
+    const {
+      username,
+      firstName,
+      lastName,
+      password,
+      email,
+      // domainsCount,
+      wallet,
+      referrerId,
+      referrerUsername,
+      roles,
+      active,
+      terms,
+    }: UserType["body"] = req.body;
 
-  const {
-    username,
-    firstName,
-    lastName,
-    password,
-    email,
-    // domainsCount,
-    wallet,
-    referrerId,
-    referrerUsername,
-    roles,
-    active,
-    terms,
-  }: UserType["body"] = req.body;
-
-  /* Connect the blockchain using web3js and retrieve the domain count associated 
+    /* Connect the blockchain using web3js and retrieve the domain count associated 
   with the user's wallet (req.wallet)
 Then assign it to the domainCount field before creating a new userModel doc.
 */
-  const duplicate = await UserModel.findOne({ username })
-    .collation({ locale: "en", strength: 2 })
-    .lean()
-    .exec();
-  if (duplicate)
-    return res
-      .status(409)
-      .json({ message: "Username taken, try another one !" });
+    const duplicate = await UserModel.findOne({ username })
+      .collation({ locale: "en", strength: 2 })
+      .lean()
+      .exec();
+    if (duplicate)
+      return res
+        .status(409)
+        .json({ message: "Username taken, try another one !" });
 
-  // Check if the referrer/affiliate exist
-  // BUG: I was initially checking if the provided affiliate user has at least one referred user
-  // with findOne({ referrerUsername })
-  // Instead of checking if it existed with findOne({ username: referrerUsername })
-  const referrer = await UserModel.findOne({ username: referrerUsername })
-    .lean()
-    .exec();
-  if (!referrer)
-    return res.status(401).json({ message: "Invalid affiliate username." });
+    // Check if the referrer/affiliate exist
+    // BUG: I was initially checking if the provided affiliate user has at least one referred user
+    // with findOne({ referrerUsername })
+    // Instead of checking if it existed with findOne({ username: referrerUsername })
+    const referrer = await UserModel.findOne({ username: referrerUsername })
+      .lean()
+      .exec();
+    if (!referrer)
+      return res.status(401).json({ message: "Invalid affiliate username." });
 
-  const user = await UserModel.create({
-    firstName,
-    lastName,
-    username,
-    password,
-    email,
-    // domainsCount,
-    wallet,
-    referrerId,
-    referrerUsername,
-    roles,
-    active,
-    terms,
-  });
+    const user = await UserModel.create({
+      firstName,
+      lastName,
+      username,
+      password,
+      email,
+      // domainsCount,
+      wallet,
+      referrerId,
+      referrerUsername,
+      roles,
+      active,
+      terms,
+    });
 
-  res.json({ message: "User created successfully !", body: user });
+    res.json({ message: "User created successfully !" }); // removed: body: user
+  } catch (error) {
+    console.log(error);
+  }
 };
 
 /**
